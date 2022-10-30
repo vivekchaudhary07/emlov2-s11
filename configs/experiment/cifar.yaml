@@ -4,7 +4,8 @@ defaults:
   - override /datamodule: cifar10.yaml
   - override /model: timm.yaml
   - override /callbacks: default.yaml
-  - override /trainer: default.yaml
+  - override /trainer: ddp.yaml
+  - override /logger: tensorboard.yaml
 
 
 tags: ["cifar10"]
