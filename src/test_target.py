@@ -15,7 +15,10 @@ from omegaconf import DictConfig
 from pytorch_lightning import Callback, LightningDataModule, LightningModule, Trainer
 from pytorch_lightning.loggers import LightningLoggerBase
 
-@hydra.main(version_base="1.2", config_path=root / "configs", config_name="test_target.yaml")
+
+@hydra.main(
+    version_base="1.2", config_path=root / "configs", config_name="test_target.yaml"
+)
 def main(cfg: DictConfig) -> Optional[float]:
     print(cfg)
 
@@ -26,6 +29,7 @@ def main(cfg: DictConfig) -> Optional[float]:
     print(dm_func(d="d"))
 
     # print(dm)
+
 
 if __name__ == "__main__":
     main()

@@ -4,9 +4,7 @@ class TestClass:
         self.bar = bar
 
     def __repr__(self):
-        return repr(
-            f"TestClass foo={self.foo} bar={self.bar}"
-        )
+        return repr(f"TestClass foo={self.foo} bar={self.bar}")
 
 
 class TestClass2:
@@ -15,9 +13,8 @@ class TestClass2:
         self.b = b
 
     def __repr__(self):
-        return repr(
-            f"TestClass a={self.a} b={self.b}"
-        )
+        return repr(f"TestClass a={self.a} b={self.b}")
+
 
 def test_func(*args, **kwargs):
     print("args", args)

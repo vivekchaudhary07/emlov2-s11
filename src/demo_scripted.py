@@ -18,6 +18,7 @@ from src import utils
 
 log = utils.get_pylogger(__name__)
 
+
 def demo(cfg: DictConfig) -> Tuple[dict, dict]:
     """Demo function.
     Args:
@@ -55,11 +56,13 @@ def demo(cfg: DictConfig) -> Tuple[dict, dict]:
 
     demo.launch()
 
+
 @hydra.main(
     version_base="1.2", config_path=root / "configs", config_name="demo_scripted.yaml"
 )
 def main(cfg: DictConfig) -> None:
     demo(cfg)
+
 
 if __name__ == "__main__":
     main()

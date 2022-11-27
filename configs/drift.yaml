@@ -1,0 +1,20 @@
+# @package _global_
+
+# to execute this experiment run:
+# python src/drift.py
+
+defaults:
+  - _self_
+  - model: timm.yaml
+
+# model:
+#   _target_: timm.create_model
+#   model_name: resnet18 #tf_efficientnet_b7
+#   pretrained: True
+#   num_classes: 1000
+
+
+MEAN : [0.491, 0.482, 0.446]
+STD : [0.247, 0.243, 0.261]
+
+chpt_path: logs/train/runs/2022-11-27_13-10-33/checkpoints/epoch_009.ckpt

@@ -1,10 +1,32 @@
 from typing import Any, Dict, Optional, Tuple
 
+import albumentations as A
+import numpy as np
 import torch
+
+from albumentations.pytorch import ToTensorV2
 from pytorch_lightning import LightningDataModule
 from torch.utils.data import ConcatDataset, DataLoader, Dataset, random_split
 from torchvision.datasets import CIFAR10
-from torchvision.transforms import transforms
+from torchvision.transforms import transforms as T
+
+
+class Cifar10Dataset(Dataset):
+    def __init__(self, data, transform=None):
+        self.data = data
+        self.transform = transform
+
+    def __len__(self):
+        return len(self.data)
+
+    def __getitem__(self, idx):
+        image, label = self.data[idx]
+
+        if self.transform:
+            image = self.transform(image=np.array(image))["image"]
+
+        return image, label
+
 
 class CIFAR10DataModule(LightningDataModule):
     def __init__(
@@ -21,11 +43,20 @@ class CIFAR10DataModule(LightningDataModule):
         # also ensures init params will be stored in ckpt
         self.save_hyperparameters(logger=False)
 
-        self.transforms = transforms.Compose(
+        self.train_transforms = A.Compose(
             [
-                transforms.Resize(224),
-                transforms.ToTensor(),
-                transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5)),
+                A.Rotate(limit=5, interpolation=1, border_mode=4),
+                A.HorizontalFlip(),
+                A.CoarseDropout(2, 8, 8, 1, 8, 8),
+                A.RandomBrightnessContrast(brightness_limit=1.5, contrast_limit=0.9),
+                A.Normalize(mean=(0.491, 0.482, 0.446), std=(0.247, 0.243, 0.261)),
+                ToTensorV2(),
+            ]
+        )
+        self.test_transforms = A.Compose(
+            [
+                A.Normalize(mean=(0.491, 0.482, 0.446), std=(0.247, 0.243, 0.261)),
+                ToTensorV2(),
             ]
         )
 
@@ -48,8 +79,8 @@ class CIFAR10DataModule(LightningDataModule):
     def setup(self, stage=None):
         # load and split datasets only if not loaded already
         if not self.data_train and not self.data_val and not self.data_test:
-            trainset = CIFAR10(self.hparams.data_dir, train=True, transform=self.transforms)
-            testset = CIFAR10(self.hparams.data_dir, train=False, transform=self.transforms)
+            trainset = CIFAR10(self.hparams.data_dir, train=True)
+            testset = CIFAR10(self.hparams.data_dir, train=False)
             dataset = ConcatDataset(datasets=[trainset, testset])
             self.data_train, self.data_val, self.data_test = random_split(
                 dataset=dataset,
@@ -59,7 +90,7 @@ class CIFAR10DataModule(LightningDataModule):
 
     def train_dataloader(self):
         return DataLoader(
-            dataset=self.data_train,
+            dataset=Cifar10Dataset(self.data_train, self.train_transforms),
             batch_size=self.hparams.batch_size,
             num_workers=self.hparams.num_workers,
             pin_memory=self.hparams.pin_memory,
@@ -68,7 +99,7 @@ class CIFAR10DataModule(LightningDataModule):
 
     def val_dataloader(self):
         return DataLoader(
-            dataset=self.data_val,
+            dataset=Cifar10Dataset(self.data_val, self.test_transforms),
             batch_size=self.hparams.batch_size,
             num_workers=self.hparams.num_workers,
             pin_memory=self.hparams.pin_memory,
@@ -77,7 +108,7 @@ class CIFAR10DataModule(LightningDataModule):
 
     def test_dataloader(self):
         return DataLoader(
-            dataset=self.data_test,
+            dataset=Cifar10Dataset(self.data_test, self.test_transforms),
             batch_size=self.hparams.batch_size,
             num_workers=self.hparams.num_workers,
             pin_memory=self.hparams.pin_memory,
@@ -95,4 +126,3 @@ class CIFAR10DataModule(LightningDataModule):
     def load_state_dict(self, state_dict: Dict[str, Any]):
         """Things to do when loading checkpoint."""
         pass
-        
