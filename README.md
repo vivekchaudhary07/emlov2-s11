@@ -71,8 +71,25 @@
             'backend': 'pytorch'}}
     ```
 
-- [tensorboard logs](https://tensorboard.dev/experiment/48QDIVAYR0SPqQj2kP2ybg/)
+- [tensorboard logs](https://tensorboard.dev/experiment/OF8EVONsQimcQXRAiRPfkg)
 
+![](images/tb1.png)
+![](images/tb2.png)
+![](images/tb3.png)
+
+log images in tensorboard
+"""python
+def training_step(self, batch: Any, batch_idx: int):
+      loss, preds, targets = self.step(batch)
+      self.ne += 1
+      # update and log metrics
+      self.train_loss(loss)
+      self.train_acc(preds, targets)
+
+      if batch_idx in (0, 1):
+          grid = torchvision.utils.make_grid(batch[0])
+          self.logger.experiment.add_image("augmented_batch_images", grid, self.ne)
+"""
 Maximum Mean Discrepancy (MMD) is used to calculate data drift
 
 ## Data Drift
