@@ -4,7 +4,7 @@ timm
 # torchvision>=0.11.0
 pytorch-lightning
 torchmetrics==0.9.3
-fairscale==0.4.12
+fairscale==0.4.13
 
 # --------- hydra --------- #
 hydra-core==1.2.0
